@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.activity.MainActivity;
 import wang.switchy.hin2n.event.*;
@@ -79,7 +80,7 @@ public class N2NService extends VpnService {
              * See https://github.com/zerotier/ZeroTierOne/issues/178#issuecomment-204599227 */
 //            builder.addRoute("0.0.0.0", 1);
 //            builder.addRoute("128.0.0.0", 1);
-            builder.addRoute("192.168.1.0",24);
+            builder.addRoute("192.168.1.0", 24);
         }
 
         if (!mN2nSettingInfo.getDnsServer().isEmpty()) {
@@ -151,8 +152,9 @@ public class N2NService extends VpnService {
             manager.createNotificationChannel(notificationChannel);
 
             Intent i = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, 0);
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,CHANNEL_ONE_ID)
+//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
                     .setTicker("Nature")
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
@@ -205,7 +207,7 @@ public class N2NService extends VpnService {
 
                         EventBus.getDefault().post(new StopEvent());
                         mStopInProgress = false;
-                        if(mFileObserver != null){
+                        if (mFileObserver != null) {
                             mFileObserver.stopWatching();  //清除日志文件会导致FileObserver失效，要先stop再start
                         }
                         if (onStopCallback != null)
@@ -245,7 +247,7 @@ public class N2NService extends VpnService {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLogChangeEvent(final LogChangeEvent event) {
         EdgeStatus status = getEdgeStatus();
-        Log.d("status",status.runningStatus.name());
+        Log.d("status", status.runningStatus.name());
         reportEdgeStatus(status);
     }
 
@@ -306,7 +308,7 @@ public class N2NService extends VpnService {
                 break;
             case CMD_ADD_NOTIFICATION:
                 Intent mainIntent = new Intent(this, MainActivity.class);
-                PendingIntent mainPendingIntent = PendingIntent.getActivity(this, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent mainPendingIntent = PendingIntent.getActivity(this, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getString(R.string.notification_channel_id_default))
                         .setSmallIcon(R.mipmap.ic_launcher)
@@ -328,7 +330,7 @@ public class N2NService extends VpnService {
                 break;
             case CMD_UPDATE_NOTIFICATION:
                 Intent mainIntent1 = new Intent(this, MainActivity.class);
-                PendingIntent mainPendingIntent1 = PendingIntent.getActivity(this, 0, mainIntent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent mainPendingIntent1 = PendingIntent.getActivity(this, 0, mainIntent1, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
                 NotificationCompat.Builder builder2 = new NotificationCompat.Builder(this, getString(R.string.notification_channel_id_default))
                         .setSmallIcon(R.mipmap.ic_launcher)

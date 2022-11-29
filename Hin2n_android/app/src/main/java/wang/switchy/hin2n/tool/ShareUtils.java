@@ -42,8 +42,6 @@ public class ShareUtils {
         }
     }
 
-
-
     public static void doOnClickShareItem(final Activity activity) {
         UMWeb umWeb = new UMWeb("https://github.com/switch-iot/hin2n/blob/master/README.md");
         umWeb.setTitle("Hin2n");

@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -25,16 +26,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.orhanobut.logger.Logger;
 //import com.tencent.bugly.beta.Beta;
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.runtime.Permission;
+import com.permissionx.guolindev.PermissionX;
+import com.permissionx.guolindev.callback.RequestCallback;
+//import com.yanzhenjie.permission.Action;
+//import com.yanzhenjie.permission.AndPermission;
+//import com.yanzhenjie.permission.runtime.Permission;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import wang.switchy.hin2n.Hin2nApplication;
+//import wang.switchy.hin2n.Manifest;
+import android.Manifest;
+
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.adapter.TermAdapter;
 import wang.switchy.hin2n.event.ConnectingEvent;
@@ -151,62 +159,51 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        mConnectBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mCurrentSettingName.getText().equals(getResources().getString(R.string.no_setting))) {
-                    Toast.makeText(mContext, "no setting selected", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        mConnectBtn.setOnClickListener(view -> {
+            if (mCurrentSettingName.getText().equals(getResources().getString(R.string.no_setting))) {
+                Toast.makeText(mContext, "no setting selected", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                EdgeStatus.RunningStatus status = N2NService.INSTANCE == null ? EdgeStatus.RunningStatus.DISCONNECT : N2NService.INSTANCE.getCurrentStatus();
-                if (N2NService.INSTANCE != null && status != EdgeStatus.RunningStatus.DISCONNECT && status != EdgeStatus.RunningStatus.FAILED) {
-                    /* Asynchronous call */
-                    mConnectBtn.setClickable(false);
-                    mConnectBtn.setImageResource(R.mipmap.ic_state_connect_change);
-                    N2NService.INSTANCE.stop(null);
+            EdgeStatus.RunningStatus status = N2NService.INSTANCE == null ? EdgeStatus.RunningStatus.DISCONNECT : N2NService.INSTANCE.getCurrentStatus();
+            if (N2NService.INSTANCE != null && status != EdgeStatus.RunningStatus.DISCONNECT && status != EdgeStatus.RunningStatus.FAILED) {
+                /* Asynchronous call */
+                mConnectBtn.setClickable(false);
+                mConnectBtn.setImageResource(R.mipmap.ic_state_connect_change);
+                N2NService.INSTANCE.stop(null);
+            } else {
+                mConnectBtn.setClickable(false);
+                mConnectBtn.setImageResource(R.mipmap.ic_state_connect_change);
+                Intent vpnPrepareIntent = VpnService.prepare(MainActivity.this);
+                if (vpnPrepareIntent != null) {
+                    startActivityForResult(vpnPrepareIntent, REQUECT_CODE_VPN);
                 } else {
-                    mConnectBtn.setClickable(false);
-                    mConnectBtn.setImageResource(R.mipmap.ic_state_connect_change);
-                    Intent vpnPrepareIntent = VpnService.prepare(MainActivity.this);
-                    if (vpnPrepareIntent != null) {
-                        startActivityForResult(vpnPrepareIntent, REQUECT_CODE_VPN);
-                    } else {
-                        onActivityResult(REQUECT_CODE_VPN, RESULT_OK, null);
-                    }
+                    onActivityResult(REQUECT_CODE_VPN, RESULT_OK, null);
                 }
             }
         });
 
         mCurrentSettingItem = (RelativeLayout) findViewById(R.id.rl_current_setting_item);
-        mCurrentSettingItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, ListActivity.class));
-            }
-        });
+        mCurrentSettingItem.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ListActivity.class)));
 
         mCurrentSettingName = (TextView) findViewById(R.id.tv_current_setting_name);
         mCurrentSettingName.setText(R.string.no_setting);
 
         mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
         SharedPreferences n2nSp = getSharedPreferences("Hin2n", Context.MODE_PRIVATE);
-        if(n2nSp.getBoolean("start_at_boot", false))
+        if (n2nSp.getBoolean("start_at_boot", false))
             mStartAtBoot.setChecked(true);
 
-        mStartAtBoot.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                if (mStartAtBoot.isChecked()) {
-                    Intent vpnPrepareIntent = VpnService.prepare(MainActivity.this);
-                    if (vpnPrepareIntent != null){
-                        startActivityForResult(vpnPrepareIntent, REQUEST_CODE_VPN_FOR_START_AT_BOOT);
-                        return;
-                    }
+        mStartAtBoot.setOnClickListener(v -> {
+            if (mStartAtBoot.isChecked()) {
+                Intent vpnPrepareIntent = VpnService.prepare(MainActivity.this);
+                if (vpnPrepareIntent != null) {
+                    startActivityForResult(vpnPrepareIntent, REQUEST_CODE_VPN_FOR_START_AT_BOOT);
+                    return;
                 }
-                SharedPreferences n2nSp = getSharedPreferences("Hin2n", MODE_PRIVATE);
-                n2nSp.edit().putBoolean("start_at_boot", mStartAtBoot.isChecked()).apply();
             }
+            SharedPreferences n2nSp1 = getSharedPreferences("Hin2n", MODE_PRIVATE);
+            n2nSp1.edit().putBoolean("start_at_boot", mStartAtBoot.isChecked()).apply();
         });
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -221,80 +218,64 @@ public class MainActivity extends BaseActivity {
         appVersion.setText(N2nTools.getVersionName(this));
 
         RelativeLayout shareItem = (RelativeLayout) findViewById(R.id.rl_share);
-        shareItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Logger.d("shareItem onClick~");
+        shareItem.setOnClickListener(view -> {
+            Logger.d("shareItem onClick~");
 
-                if (Build.VERSION.SDK_INT >= 23) {
-                    AndPermission.with(MainActivity.this)
-                            .runtime()
-                            .permission(Permission.READ_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION, Permission.READ_PHONE_STATE)
-                            .onGranted(new Action<List<String>>() {
-                                @Override
-                                public void onAction(List<String> data) {
-                                    ShareUtils.doOnClickShareItem(MainActivity.this);
-                                }
-                            })
-                            .onDenied(new Action<List<String>>() {
-                                @Override
-                                public void onAction(List<String> data) {
-                                    Toast.makeText(MainActivity.this, "I NEED PERMISSIONS!", Toast.LENGTH_SHORT).show();
-                                }
-                            }).start();
-                } else {
-                    ShareUtils.doOnClickShareItem(MainActivity.this);
-                }
-
+            if (Build.VERSION.SDK_INT >= 23) {
+                PermissionX.init(this).permissions(
+                                Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION)
+                        .request((allGranted, grantedList, deniedList) -> {
+                            if (allGranted) {
+                                ShareUtils.doOnClickShareItem(MainActivity.this);
+                            } else {
+                                Toast.makeText(MainActivity.this, "I NEED PERMISSIONS!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            } else {
+                ShareUtils.doOnClickShareItem(MainActivity.this);
             }
+//            if (Build.VERSION.SDK_INT >= 23) {
+//                AndPermission.with(MainActivity.this)
+//                        .runtime()
+//                        .permission(Permission.READ_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION, Permission.READ_PHONE_STATE)
+//                        .onGranted(data -> ShareUtils.doOnClickShareItem(MainActivity.this))
+//                        .onDenied(data -> Toast.makeText(MainActivity.this, "I NEED PERMISSIONS!", Toast.LENGTH_SHORT).show()).start();
+//            } else {
+//                ShareUtils.doOnClickShareItem(MainActivity.this);
+//            }
+
         });
         shareItem.setVisibility(View.GONE);     // @TODO 暂时不显示
 
         RelativeLayout contactItem = (RelativeLayout) findViewById(R.id.rl_contact);
-        contactItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ShareUtils.joinQQGroup(MainActivity.this);
-            }
-        });
+        contactItem.setOnClickListener(view -> ShareUtils.joinQQGroup(MainActivity.this));
 
         RelativeLayout feedbackItem = (RelativeLayout) findViewById(R.id.rl_feedback);
-        feedbackItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-                intent.putExtra(WebViewActivity.WEB_VIEW_TYPE, WebViewActivity.TYPE_WEB_VIEW_FEEDBACK);
-                startActivity(intent);
-            }
+        feedbackItem.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+            intent.putExtra(WebViewActivity.WEB_VIEW_TYPE, WebViewActivity.TYPE_WEB_VIEW_FEEDBACK);
+            startActivity(intent);
         });
 
         RelativeLayout checkUpdateItem = (RelativeLayout) findViewById(R.id.rl_check_update);
-        checkUpdateItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        checkUpdateItem.setOnClickListener(view -> {
 //                Beta.checkUpgrade();
-            }
         });
 
         RelativeLayout aboutItem = (RelativeLayout) findViewById(R.id.rl_about);
-        aboutItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        aboutItem.setOnClickListener(view -> {
 
-                Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-                intent.putExtra(WebViewActivity.WEB_VIEW_TYPE, WebViewActivity.TYPE_WEB_VIEW_ABOUT);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+            intent.putExtra(WebViewActivity.WEB_VIEW_TYPE, WebViewActivity.TYPE_WEB_VIEW_ABOUT);
+            startActivity(intent);
         });
     }
-
-
 
 
     @Override
     protected int getContentLayout() {
         Configuration mConfiguration = getResources().getConfiguration();
-        if(mConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if (mConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             return R.layout.activity_main_land;
         }
         return R.layout.activity_main;
@@ -312,8 +293,7 @@ public class MainActivity extends BaseActivity {
             intent.putExtra("Setting", bundle);
 
             startService(intent);
-        }
-        else if (requestCode == REQUEST_CODE_VPN_FOR_START_AT_BOOT) {
+        } else if (requestCode == REQUEST_CODE_VPN_FOR_START_AT_BOOT) {
             mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
             if (mStartAtBoot.isChecked()) {
                 if (resultCode == RESULT_OK) {
@@ -451,8 +431,8 @@ public class MainActivity extends BaseActivity {
         ThreadUtils.cachedThreadExecutor(new Runnable() {
             @Override
             public void run() {
-                if(!TextUtils.isEmpty(logTxtPath)){
-                    IOUtils.readTxtLimits(showLog,logTxtPath,1024*5,mTermAdapter);
+                if (!TextUtils.isEmpty(logTxtPath)) {
+                    IOUtils.readTxtLimits(showLog, logTxtPath, 1024 * 5, mTermAdapter);
                 }
             }
         });

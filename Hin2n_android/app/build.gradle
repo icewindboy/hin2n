@@ -72,18 +72,18 @@ def getAllManifestValues = { variant ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 32
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "wang.switchy.hin2n"
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionCode getVersionCode()
         versionName getVersionName()
         multiDexEnabled true
-        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "normal", ARCH: "all", UMENG_APPKEY_VALUE: "", BUGLY_APPID_VALUE: "",
-                                SHARE_WX_APPID_VALUE: "", SHARE_WX_APPSECRET_VALUE: "",
-                                SHARE_WB_APPID_VALUE: "", SHARE_WB_APPSECRET_VALUE: ""]
+//        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "normal", ARCH: "all", UMENG_APPKEY_VALUE: "", BUGLY_APPID_VALUE: "",
+//                                SHARE_WX_APPID_VALUE: "", SHARE_WX_APPSECRET_VALUE: "",
+//                                SHARE_WB_APPID_VALUE: "", SHARE_WB_APPSECRET_VALUE: ""]
         resConfigs "en", "zh-rCN", "zh-rTW"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -99,10 +99,16 @@ android {
         debug {}
 
         release {
-            storeFile file("Hin2n.jks")
-            storePassword getEnvOrConsole("HIN2N_KSTOREPWD", "Keystore password")
-            keyAlias "Hin2n"
-            keyPassword getEnvOrConsole("HIN2N_KEYPWD", "Key password")
+
+            keyAlias 'hin2n'
+            keyPassword 'winboy'
+            storeFile file('../signkey.jks')
+            storePassword 'winboy'
+
+//            storeFile file("apk.jks")
+//            storePassword getEnvOrConsole("HIN2N_KSTOREPWD", "Keystore password")
+//            keyAlias "Hin2n"
+//            keyPassword getEnvOrConsole("HIN2N_KEYPWD", "Key password")
         }
     }
 
@@ -123,13 +129,13 @@ android {
         }
     }
 
-    gradle.taskGraph.beforeTask { Task task ->
-        if (task.name.contains("Release")) {
-            task.onlyIf {
-                return getAllManifestValues()
-            }
-        }
-    }
+//    gradle.taskGraph.beforeTask { Task task ->
+//        if (task.name.contains("Release")) {
+//            task.onlyIf {
+//                return getAllManifestValues()
+//            }
+//        }
+//    }
 
     applicationVariants.all { variant ->
         getAllManifestValues(variant)
@@ -194,7 +200,7 @@ android {
             path "CMakeLists.txt"
         }
     }
-    
+
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
@@ -218,19 +224,19 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'org.greenrobot:eventbus:latest.integration'
-    implementation 'com.umeng.sdk:common:latest.integration'
-    implementation 'com.umeng.sdk:utdid:latest.integration'
-    implementation 'com.umeng.sdk:analytics:latest.integration'
+//    implementation 'com.umeng.sdk:common:latest.integration'
+//    implementation 'com.umeng.sdk:utdid:latest.integration'
+//    implementation 'com.umeng.sdk:analytics:latest.integration'
     implementation 'org.greenrobot:greendao:3.2.0'
     implementation 'com.baoyz.swipemenulistview:library:1.3.0'
     implementation 'com.wang.avi:library:2.1.3'
     implementation 'com.orhanobut:logger:1.15'
-    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
-    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
-    implementation files('libs/umeng-share-core-6.9.2.jar')
-    implementation files('libs/umeng-share-sina-simplify-6.9.2.jar')
-    implementation files('libs/umeng-share-wechat-simplify-6.9.2.jar')
-    implementation files('libs/umeng-sharetool-6.9.2.jar')
+//    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
+//    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
+//    implementation files('libs/umeng-share-core-6.9.2.jar')
+//    implementation files('libs/umeng-share-sina-simplify-6.9.2.jar')
+//    implementation files('libs/umeng-share-wechat-simplify-6.9.2.jar')
+//    implementation files('libs/umeng-sharetool-6.9.2.jar')
     implementation 'com.yanzhenjie:permission:2.0.3'
     implementation 'com.github.f0ris.sweetalert:library:latest.release'
 }

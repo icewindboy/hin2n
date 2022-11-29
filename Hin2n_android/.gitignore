@@ -4,7 +4,7 @@
 *.iws
 /.idea/workspace.xml
 /.idea/libraries
-.gradle
+/.gradle
 /local.properties
 reports
 /captures
@@ -12,5 +12,5 @@ jacoco.exec
 .DS_Store
 /build
 .externalNativeBuild
-/app/Hin2n.jks
 /app/.cxx
+signkey.jks

@@ -71,13 +71,16 @@ def getAllManifestValues = { variant ->
     return v1 && v2
 }
 
+
 android {
-    compileSdkVersion 32
-    buildToolsVersion '28.0.3'
+    compileSdk 32
+//    buildToolsVersion '30.0.3'
+
+    namespace 'wang.switchy.hin2n'
     defaultConfig {
         applicationId "wang.switchy.hin2n"
-        minSdkVersion 17
-        targetSdkVersion 31
+        minSdk 17
+        targetSdk 31
         versionCode getVersionCode()
         versionName getVersionName()
         multiDexEnabled true
@@ -86,7 +89,7 @@ android {
 //                                SHARE_WB_APPID_VALUE: "", SHARE_WB_APPSECRET_VALUE: ""]
         resConfigs "en", "zh-rCN", "zh-rTW"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
             cmake {
                 cppFlags ""
@@ -95,20 +98,16 @@ android {
         }
     }
 
+
+    ndkVersion = '25.1.8937393'
     signingConfigs {
         debug {}
 
         release {
-
             keyAlias 'hin2n'
-            keyPassword 'winboy'
+            keyPassword KEY_PASSWORD
             storeFile file('../signkey.jks')
-            storePassword 'winboy'
-
-//            storeFile file("apk.jks")
-//            storePassword getEnvOrConsole("HIN2N_KSTOREPWD", "Keystore password")
-//            keyAlias "Hin2n"
-//            keyPassword getEnvOrConsole("HIN2N_KEYPWD", "Key password")
+            storePassword STORE_PASSWORD
         }
     }
 
@@ -129,6 +128,37 @@ android {
         }
     }
 
+    applicationVariants.all { variant ->
+//        if (project.hasProperty('keyAlias') && project.hasProperty('storeFile') &&
+//                project.hasProperty('storePassword') &&
+//                project.hasProperty('keyPassword')) {
+//            android.signingConfigs.release.keyAlias = keyAlias
+//            android.signingConfigs.release.storeFile = file(storeFile)
+//            android.signingConfigs.release.storePassword = storePassword
+//            android.signingConfigs.release.keyPassword = keyPassword
+//        } else {
+//            android.buildTypes.release.signingConfig = null
+//        }
+
+//        getAllManifestValues(variant)
+//        if (variant.buildType.name == 'debug') {
+//            variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE = 'umtest'
+//        }
+
+//        variant.outputs.all { output ->
+//            def outputFile = output.outputFile
+//            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+//                output.versionNameOverride = getVersionName()
+//                def channel = variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE
+//                def arch = variant.mergedFlavor.manifestPlaceholders.ARCH
+////              def fileName = "${variant.mergedFlavor.versionName}_${channel}_${arch}_${variant.buildType.name}.apk"
+//                def fileName = "${variant.mergedFlavor.versionName}_${arch}_${channel}.apk"
+//                outputFileName = fileName
+//            }
+//
+//        }
+    }
+
 //    gradle.taskGraph.beforeTask { Task task ->
 //        if (task.name.contains("Release")) {
 //            task.onlyIf {
@@ -137,25 +167,7 @@ android {
 //        }
 //    }
 
-    applicationVariants.all { variant ->
-        getAllManifestValues(variant)
-//        if (variant.buildType.name == 'debug') {
-//            variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE = 'umtest'
-//        }
 
-        variant.outputs.all { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                output.versionNameOverride = getVersionName()
-                def channel = variant.mergedFlavor.manifestPlaceholders.UMENG_CHANNEL_VALUE
-                def arch = variant.mergedFlavor.manifestPlaceholders.ARCH
-//              def fileName = "${variant.mergedFlavor.versionName}_${channel}_${arch}_${variant.buildType.name}.apk"
-                def fileName = "${variant.mergedFlavor.versionName}_${arch}_${channel}.apk"
-                outputFileName = fileName
-            }
-
-        }
-    }
 
     flavorDimensions "channel", "arch"
 
@@ -216,13 +228,13 @@ greendao {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.8'
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'org.greenrobot:eventbus:latest.integration'
 //    implementation 'com.umeng.sdk:common:latest.integration'
 //    implementation 'com.umeng.sdk:utdid:latest.integration'

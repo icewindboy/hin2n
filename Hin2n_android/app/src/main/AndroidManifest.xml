@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="wang.switchy.hin2n">
+    xmlns:tools="http://schemas.android.com/tools"    >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -40,7 +39,8 @@
         </receiver>
 
         <activity
-            android:name=".activity.MainActivity">
+            android:name=".activity.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -58,16 +58,17 @@
 
         <service
             android:name=".service.N2NService"
-            android:permission="android.permission.BIND_VPN_SERVICE">
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
 
-        <activity
-            android:name="com.tencent.bugly.beta.ui.BetaActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@android:style/Theme.Translucent" />
+<!--        <activity-->
+<!--            android:name="com.tencent.bugly.beta.ui.BetaActivity"-->
+<!--            android:configChanges="keyboardHidden|orientation|screenSize|locale"-->
+<!--            android:theme="@android:style/Theme.Translucent" />-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

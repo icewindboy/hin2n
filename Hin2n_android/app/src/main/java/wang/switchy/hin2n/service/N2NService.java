@@ -59,6 +59,16 @@ public class N2NService extends VpnService {
     private boolean mStopInProgress = false;
     private FileObserver mFileObserver;
 
+//    private native void jni_init();
+//
+//    private native void jni_start(int tun, boolean fwd53, int rcode, String proxyIp, int proxyPort);
+//
+//    private native void jni_stop(int tun);
+//
+//    private native int jni_get_mtu();
+//
+//    private native void jni_done();
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -66,7 +76,10 @@ public class N2NService extends VpnService {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+
+//        jni_init();
     }
+
 
     public int EstablishVpnService(String ip, int mask) {
 
@@ -123,6 +136,9 @@ public class N2NService extends VpnService {
             if (vpnServiceFd < 0) {
                 return super.onStartCommand(intent, flags, startId);
             }
+
+            // start proxy first
+//            jni_start(vpnServiceFd, false, 3, "192.168.31.230", 9005);
         }
 
         String session = getResources().getStringArray(R.array.vpn_session_name)[mN2nSettingInfo.getVersion()];
@@ -183,39 +199,35 @@ public class N2NService extends VpnService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             stopForeground(true);
 
-        ThreadUtils.cachedThreadExecutor(new Runnable() {
-            @Override
-            public void run() {
-                /* Blocking call */
-                stopEdge();
-                mStopInProgress = true;
-                ThreadUtils.mainThreadExecutor(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLastStatus = mCurrentStatus = DISCONNECT;
-                        showOrRemoveNotification(CMD_REMOVE_NOTIFICATION);
+        ThreadUtils.cachedThreadExecutor(() -> {
+            /* Blocking call */
+            stopEdge();
+            // stop proxy
+//            jni_stop(-1);
+            mStopInProgress = true;
+            ThreadUtils.mainThreadExecutor(() -> {
+                mLastStatus = mCurrentStatus = DISCONNECT;
+                showOrRemoveNotification(CMD_REMOVE_NOTIFICATION);
 
-                        try {
-                            if (mParcelFileDescriptor != null) {
-                                mParcelFileDescriptor.close();
-                                mParcelFileDescriptor = null;
-                            }
-                        } catch (IOException e) {
-                            EventBus.getDefault().post(new ErrorEvent());
-                            return;
-                        }
-
-                        EventBus.getDefault().post(new StopEvent());
-                        mStopInProgress = false;
-                        if (mFileObserver != null) {
-                            mFileObserver.stopWatching();  //清除日志文件会导致FileObserver失效，要先stop再start
-                        }
-                        if (onStopCallback != null)
-                            onStopCallback.run();
-
+                try {
+                    if (mParcelFileDescriptor != null) {
+                        mParcelFileDescriptor.close();
+                        mParcelFileDescriptor = null;
                     }
-                });
-            }
+                } catch (IOException e) {
+                    EventBus.getDefault().post(new ErrorEvent());
+                    return;
+                }
+
+                EventBus.getDefault().post(new StopEvent());
+                mStopInProgress = false;
+                if (mFileObserver != null) {
+                    mFileObserver.stopWatching();  //清除日志文件会导致FileObserver失效，要先stop再start
+                }
+                if (onStopCallback != null)
+                    onStopCallback.run();
+
+            });
         });
         return (true);
     }
@@ -236,6 +248,8 @@ public class N2NService extends VpnService {
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+
+//        jni_done();
     }
 
     public native boolean startEdge(EdgeCmd cmd);

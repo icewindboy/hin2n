@@ -40,6 +40,7 @@ public class N2NSettingInfo implements Parcelable {
     String dnsServer;
     String encryptionMode;
     boolean headerEnc;
+    String proxy;
 
     public N2NSettingInfo(N2NSettingModel n2NSettingModel) {
         this.id = n2NSettingModel.getId();
@@ -68,6 +69,7 @@ public class N2NSettingInfo implements Parcelable {
         this.dnsServer = n2NSettingModel.getDnsServer();
         this.encryptionMode = n2NSettingModel.getEncryptionMode();
         this.headerEnc = n2NSettingModel.getHeaderEnc();
+
     }
 
     protected N2NSettingInfo(Parcel in) {
@@ -127,9 +129,13 @@ public class N2NSettingInfo implements Parcelable {
         this.name = name;
     }
 
-    public int getIpMode() {return ipMode;}
+    public int getIpMode() {
+        return ipMode;
+    }
 
-    public void setIpMode(int ipMode) { this.ipMode = ipMode; }
+    public void setIpMode(int ipMode) {
+        this.ipMode = ipMode;
+    }
 
     public String getIp() {
         return ip;
@@ -171,9 +177,13 @@ public class N2NSettingInfo implements Parcelable {
         this.superNode = superNode;
     }
 
-    public String getDevDesc() { return devDesc; }
+    public String getDevDesc() {
+        return devDesc;
+    }
 
-    public void setDevDesc(String devDesc) { this.devDesc = devDesc; }
+    public void setDevDesc(String devDesc) {
+        this.devDesc = devDesc;
+    }
 
     public boolean isMoreSettings() {
         return moreSettings;
@@ -287,7 +297,9 @@ public class N2NSettingInfo implements Parcelable {
         return dnsServer;
     }
 
-    public String getEncryptionMode() { return encryptionMode; }
+    public String getEncryptionMode() {
+        return encryptionMode;
+    }
 
     public boolean isHeaderEnc() {
         return headerEnc;
@@ -295,6 +307,14 @@ public class N2NSettingInfo implements Parcelable {
 
     public void setHeaderEnc(boolean headerEnc) {
         this.headerEnc = headerEnc;
+    }
+
+    public String getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
     }
 
     @Override

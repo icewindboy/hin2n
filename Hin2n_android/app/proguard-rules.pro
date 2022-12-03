@@ -15,3 +15,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+#-keep class wang.switchy.hin2n.model.EdgeCmd
+#-keep class wang.switchy.hin2n.service.N2NService

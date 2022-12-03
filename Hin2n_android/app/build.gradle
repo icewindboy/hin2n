@@ -98,7 +98,6 @@ android {
         }
     }
 
-
     ndkVersion = '25.1.8937393'
     signingConfigs {
         debug {}
@@ -115,7 +114,8 @@ android {
         debug {
             buildConfigField("boolean", "LOG_DEBUG", "true")
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            jniDebuggable true
 
         }
 

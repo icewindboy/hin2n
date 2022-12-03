@@ -101,18 +101,14 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
     private LinearLayout mEncryptionBox;
     private Spinner mEncryptionMode;
     private CheckBox mHeaderEncCheckBox;
+    private TextInputLayout mProxy;
 
     @Override
     protected BaseTemplate createTemplate() {
         CommonTitleTemplate titleTemplate = new CommonTitleTemplate(mContext, getString(R.string.title_add_setting));
         titleTemplate.mLeftImg.setVisibility(View.VISIBLE);
         titleTemplate.mLeftImg.setImageResource(R.drawable.titlebar_icon_return_selector);
-        titleTemplate.mLeftImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        titleTemplate.mLeftImg.setOnClickListener(view -> finish());
         return titleTemplate;
     }
 
@@ -128,102 +124,85 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
         mHin2nSp = getSharedPreferences("Hin2n", MODE_PRIVATE);
         mHin2nEdit = mHin2nSp.edit();
 
-        mSettingName = (TextInputLayout) findViewById(R.id.til_setting_name);
+        mSettingName = findViewById(R.id.til_setting_name);
 
-        mVersionGroup = (RadioGroup) findViewById(R.id.rg_version);
-        mVersionGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                if (type == TYPE_SETTING_ADD) {
-                    if (checkedId == R.id.rb_v3)
-                        mEncryptionMode.setSelection(1);
-                    else
-                        mEncryptionMode.setSelection(0);
-                }
-                updateVersionGroupCheck(checkedId);
+        mVersionGroup = findViewById(R.id.rg_version);
+        mVersionGroup.setOnCheckedChangeListener((radioGroup, checkedId) -> {
+            if (type == TYPE_SETTING_ADD) {
+                if (checkedId == R.id.rb_v3)
+                    mEncryptionMode.setSelection(1);
+                else
+                    mEncryptionMode.setSelection(0);
             }
+            updateVersionGroupCheck(checkedId);
         });
-        mVersionV1 = (RadioButton) findViewById(R.id.rb_v1);
-        mVersionV2 = (RadioButton) findViewById(R.id.rb_v2);
-        mVersionV2s = (RadioButton) findViewById(R.id.rb_v2s);
-        mVersionV3 = (RadioButton) findViewById(R.id.rb_v3);
+        mVersionV1 = findViewById(R.id.rb_v1);
+        mVersionV2 = findViewById(R.id.rb_v2);
+        mVersionV2s = findViewById(R.id.rb_v2s);
+        mVersionV3 = findViewById(R.id.rb_v3);
 
-        mIpAddressTIL = (TextInputLayout) findViewById(R.id.til_ip_address);
-        mNetMaskTIL = (TextInputLayout) findViewById(R.id.til_net_mask);
-        mCommunityTIL = (TextInputLayout) findViewById(R.id.til_community);
-        mEncryptTIL = (TextInputLayout) findViewById(R.id.til_encrypt);
+        mIpAddressTIL = findViewById(R.id.til_ip_address);
+        mNetMaskTIL = findViewById(R.id.til_net_mask);
+        mCommunityTIL = findViewById(R.id.til_community);
+        mEncryptTIL = findViewById(R.id.til_encrypt);
         mEncryptTIL.getEditText().setTransformationMethod(PasswordTransformationMethod.getInstance());//隐藏
-        mSuperNodeTIL = (TextInputLayout) findViewById(R.id.til_super_node);
+        mSuperNodeTIL = findViewById(R.id.til_super_node);
 
-        mDevDescTIL = (TextInputLayout) findViewById(R.id.til_dev_desc);
-        mGetIpFromSupernodeView = (RelativeLayout) findViewById(R.id.rl_get_ip_from_supernode);
-        mGetIpFromSupernodeCheckBox = (CheckBox) findViewById(R.id.get_ip_from_supernode_check_box);
-        mGetIpFromSupernodeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    mIpAddressTIL.getEditText().setText("0.0.0.0");
-                    mNetMaskTIL.getEditText().setText(R.string.item_default_netmask);
-                    mIpAddressTIL.setVisibility(View.GONE);
-                    mNetMaskTIL.setVisibility(View.GONE);
-                } else {
-                    mIpAddressTIL.getEditText().setText(R.string.item_default_ip);
-                    mNetMaskTIL.getEditText().setText(R.string.item_default_netmask);
-                    mIpAddressTIL.setVisibility(View.VISIBLE);
-                    mNetMaskTIL.setVisibility(View.VISIBLE);
-                }
+        mDevDescTIL = findViewById(R.id.til_dev_desc);
+        mGetIpFromSupernodeView = findViewById(R.id.rl_get_ip_from_supernode);
+        mGetIpFromSupernodeCheckBox = findViewById(R.id.get_ip_from_supernode_check_box);
+        mGetIpFromSupernodeCheckBox.setOnCheckedChangeListener((compoundButton, b) -> {
+            if (b) {
+                mIpAddressTIL.getEditText().setText("0.0.0.0");
+                mNetMaskTIL.getEditText().setText(R.string.item_default_netmask);
+                mIpAddressTIL.setVisibility(View.GONE);
+                mNetMaskTIL.setVisibility(View.GONE);
+            } else {
+                mIpAddressTIL.getEditText().setText(R.string.item_default_ip);
+                mNetMaskTIL.getEditText().setText(R.string.item_default_netmask);
+                mIpAddressTIL.setVisibility(View.VISIBLE);
+                mNetMaskTIL.setVisibility(View.VISIBLE);
             }
         });
 
-        mMoreSettingView = (RelativeLayout) findViewById(R.id.rl_more_setting);
+        mMoreSettingView = findViewById(R.id.rl_more_setting);
 
-        mMoreSettingCheckBox = (CheckBox) findViewById(R.id.more_setting_check_box);
-        mMoreSettingCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    mMoreSettingView.setVisibility(View.VISIBLE);
-                } else {
-                    mMoreSettingView.setVisibility(View.GONE);
-                }
+        mMoreSettingCheckBox = findViewById(R.id.more_setting_check_box);
+        mMoreSettingCheckBox.setOnCheckedChangeListener((compoundButton, b) -> {
+            if (b) {
+                mMoreSettingView.setVisibility(View.VISIBLE);
+            } else {
+                mMoreSettingView.setVisibility(View.GONE);
             }
         });
 
-        mSuperNodeBackup = (TextInputLayout) findViewById(R.id.til_super_node_2);
-        mMacAddr = (TextInputLayout) findViewById(R.id.til_mac_addr);
-        mMtu = (TextInputLayout) findViewById(R.id.til_mtu);
-        mLocalIP = (TextInputLayout) findViewById(R.id.til_local_ip);
-        mLocalIpCheckBox = (CheckBox) findViewById(R.id.check_box_local_ip);
-        mLocalIpCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    mLocalIP.setEnabled(false);
-                } else {
-                    mLocalIP.setEnabled(true);
-                }
-            }
-        });
-        mHolePunchInterval = (TextInputLayout) findViewById(R.id.til_hole_punch_Interval);
-        mResolveSnLayout = (RelativeLayout)  findViewById(R.id.rl_resolve_super_node_ip_check_box);
-        mResoveSupernodeIPCheckBox = (CheckBox) findViewById(R.id.resove_super_node_ip_check_box);
-        mLocalPort = (TextInputLayout) findViewById(R.id.til_local_port);
-        mAllowRoutinCheckBox = (CheckBox) findViewById(R.id.allow_routing_check_box);
-        mAcceptMuticastView = (RelativeLayout) findViewById(R.id.rl_drop_muticast);
-        mAcceptMuticastCheckBox = (CheckBox) findViewById(R.id.accept_muticast_check_box);
-        mUseHttpTunnelCheckBox = (CheckBox) findViewById(R.id.use_http_tunnel_check_box);
-        mGatewayIp = (TextInputLayout) findViewById(R.id.til_gateway_ip);
-        mDnsServer = (TextInputLayout) findViewById(R.id.til_dns_server_ip);
-        mEncryptionBox = (LinearLayout) findViewById(R.id.ll_n2n_encryption);
-        mEncryptionMode = (Spinner) findViewById(R.id.til_encryption_mode);
-        mHeaderEncCheckBox = (CheckBox) findViewById(R.id.header_enc_check_box);
+        mSuperNodeBackup = findViewById(R.id.til_super_node_2);
+        mMacAddr = findViewById(R.id.til_mac_addr);
+        mMtu = findViewById(R.id.til_mtu);
+        mLocalIP = findViewById(R.id.til_local_ip);
+        mLocalIpCheckBox = findViewById(R.id.check_box_local_ip);
+        mLocalIpCheckBox.setOnCheckedChangeListener((compoundButton, b) -> mLocalIP.setEnabled(!b));
+        mHolePunchInterval = findViewById(R.id.til_hole_punch_Interval);
+        mResolveSnLayout = findViewById(R.id.rl_resolve_super_node_ip_check_box);
+        mResoveSupernodeIPCheckBox = findViewById(R.id.resove_super_node_ip_check_box);
+        mLocalPort = findViewById(R.id.til_local_port);
+        mAllowRoutinCheckBox = findViewById(R.id.allow_routing_check_box);
+        mAcceptMuticastView = findViewById(R.id.rl_drop_muticast);
+        mAcceptMuticastCheckBox = findViewById(R.id.accept_muticast_check_box);
+        mUseHttpTunnelCheckBox = findViewById(R.id.use_http_tunnel_check_box);
+        mGatewayIp = findViewById(R.id.til_gateway_ip);
+        mDnsServer = findViewById(R.id.til_dns_server_ip);
+        mEncryptionBox = findViewById(R.id.ll_n2n_encryption);
+        mEncryptionMode = findViewById(R.id.til_encryption_mode);
+        mHeaderEncCheckBox = findViewById(R.id.header_enc_check_box);
+        mProxy = findViewById(R.id.proxy);
 
         ArrayAdapter<CharSequence> encAdapter = ArrayAdapter.createFromResource(this, R.array.encryption_modes,
                 android.R.layout.simple_spinner_item);
         encAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEncryptionMode.setAdapter(encAdapter);
 
-        mTraceLevelSpinner = (Spinner) findViewById(R.id.spinner_trace_level);
+        mTraceLevelSpinner = findViewById(R.id.spinner_trace_level);
 
         mTraceLevelList = new ArrayList<>();
         mTraceLevelList.add(getString(R.string.trace_level_error));
@@ -250,11 +229,11 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
             }
         });
 
-        mSaveBtn = (Button) findViewById(R.id.btn_save);
+        mSaveBtn = findViewById(R.id.btn_save);
         mSaveBtn.setOnClickListener(this);
 
-        mButtons = (LinearLayout) findViewById(R.id.ll_buttons);
-        mModifyBtn = (Button) findViewById(R.id.btn_modify);
+        mButtons = findViewById(R.id.ll_buttons);
+        mModifyBtn = findViewById(R.id.btn_modify);
         mModifyBtn.setOnClickListener(this);
 
         if (type == TYPE_SETTING_ADD) {
@@ -341,7 +320,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
             mUseHttpTunnelCheckBox.setChecked(mN2NSettingModel.getUseHttpTunnel());
             mTraceLevelSpinner.setSelection(Integer.valueOf(mN2NSettingModel.getTraceLevel()));
             mMoreSettingCheckBox.setChecked(false);
-
+            mProxy.getEditText().setText(String.valueOf(mN2NSettingModel.getProxy()));
             mButtons.setVisibility(View.VISIBLE);
             mSaveBtn.setVisibility(View.GONE);
         }
@@ -433,7 +412,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                 mDevDescTIL.setVisibility(View.VISIBLE);
                 mGetIpFromSupernodeView.setVisibility(View.VISIBLE);
                 boolean bGetIpFromSupernodeChecked = false;
-                if(mN2NSettingModel != null)
+                if (mN2NSettingModel != null)
                     bGetIpFromSupernodeChecked = mN2NSettingModel.getIpMode() == 1;
                 mGetIpFromSupernodeCheckBox.setChecked(bGetIpFromSupernodeChecked);
                 mSuperNodeBackup.setVisibility(View.VISIBLE);
@@ -456,14 +435,11 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
     }
 
     private Boolean isDefaultSupernode(String supernode) {
-        if (supernode == null || supernode.isEmpty() ||
+        return supernode == null || supernode.isEmpty() ||
                 supernode.equals(getString(R.string.item_default_supernode_v1)) ||
                 supernode.equals(getString(R.string.item_default_supernode_v2)) ||
                 supernode.equals(getString(R.string.item_default_supernode_v2s)) ||
-                supernode.equals(getString(R.string.item_default_supernode_v3))) {
-            return true;
-        }
-        return false;
+                supernode.equals(getString(R.string.item_default_supernode_v3));
     }
 
     @Override
@@ -483,10 +459,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                     settingName = setingNameTmp + "(" + i + ")";
                 }
 
-                boolean hasSelected = false;
-                if (n2NSettingModelDao.queryBuilder().where(N2NSettingModelDao.Properties.IsSelcected.eq(true)).unique() != null) {
-                    hasSelected = true;
-                }
+                boolean hasSelected = n2NSettingModelDao.queryBuilder().where(N2NSettingModelDao.Properties.IsSelcected.eq(true)).unique() != null;
 
                 mN2NSettingModel = new N2NSettingModel(null, getN2nVersion(), settingName, mGetIpFromSupernodeCheckBox.isChecked() ? 1 : 0,
                         mIpAddressTIL.getEditText().getText().toString(), mNetMaskTIL.getEditText().getText().toString(),
@@ -502,7 +475,8 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mGatewayIp.getEditText().getText().toString(),
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
-                        mHeaderEncCheckBox.isChecked());
+                        mHeaderEncCheckBox.isChecked(),
+                        mProxy.getEditText().getText().toString());
                 n2NSettingModelDao.insert(mN2NSettingModel);
 
                 if (!hasSelected) {
@@ -555,7 +529,8 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mGatewayIp.getEditText().getText().toString(),
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
-                        mHeaderEncCheckBox.isChecked());
+                        mHeaderEncCheckBox.isChecked(),
+                        mProxy.getEditText().getText().toString());
                 n2NSettingModelDao1.update(mN2NSettingModel);
 
                 if (N2NService.INSTANCE != null &&
@@ -568,29 +543,18 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                                 .setCancelText(getString(R.string.dialog_no))
                                 .setConfirmText(getString(R.string.dialog_yes))
                                 .showCancelButton(true)
-                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                        sweetAlertDialog.cancel();
-                                    }
-                                })
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                        N2NService.INSTANCE.stop(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Intent vpnPrepareIntent = VpnService.prepare(SettingDetailsActivity.this);
-                                                if (vpnPrepareIntent != null) {
-                                                    startActivityForResult(vpnPrepareIntent, REQUECT_CODE_VPN);
-                                                } else {
-                                                    onActivityResult(REQUECT_CODE_VPN, RESULT_OK, null);
-                                                }
-                                            }
-                                        });
+                                .setCancelClickListener(sweetAlertDialog -> sweetAlertDialog.cancel())
+                                .setConfirmClickListener(sweetAlertDialog -> {
+                                    N2NService.INSTANCE.stop(() -> {
+                                        Intent vpnPrepareIntent = VpnService.prepare(SettingDetailsActivity.this);
+                                        if (vpnPrepareIntent != null) {
+                                            startActivityForResult(vpnPrepareIntent, REQUECT_CODE_VPN);
+                                        } else {
+                                            onActivityResult(REQUECT_CODE_VPN, RESULT_OK, null);
+                                        }
+                                    });
 
-                                        sweetAlertDialog.dismiss();
-                                    }
+                                    sweetAlertDialog.dismiss();
                                 })
                                 .show();
                     } else {
@@ -707,23 +671,23 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
 
         // netmask => v1, v2, v2s
         if (!EdgeCmd.checkIPV4Mask(TextUtils.isEmpty(mNetMaskTIL.getEditText().getText().toString()) ?
-                        "255.255.255.0" : mNetMaskTIL.getEditText().getText().toString())) {
+                "255.255.255.0" : mNetMaskTIL.getEditText().getText().toString())) {
             mNetMaskTIL.setError(mNetMaskTIL.getHint() + " format is incorrect");
             mNetMaskTIL.getEditText().requestFocus();
             return false;
         } else {
             mNetMaskTIL.setErrorEnabled(false);
         }
-        if((!mGatewayIp.getEditText().getText().toString().isEmpty()) &&
-            (!EdgeCmd.checkIPV4(mGatewayIp.getEditText().getText().toString()))) {
-          mGatewayIp.setError(mGatewayIp.getHint() + " format is incorrect");
-          mGatewayIp.getEditText().requestFocus();
-          return false;
+        if ((!mGatewayIp.getEditText().getText().toString().isEmpty()) &&
+                (!EdgeCmd.checkIPV4(mGatewayIp.getEditText().getText().toString()))) {
+            mGatewayIp.setError(mGatewayIp.getHint() + " format is incorrect");
+            mGatewayIp.getEditText().requestFocus();
+            return false;
         } else {
-          mGatewayIp.setErrorEnabled(false);
+            mGatewayIp.setErrorEnabled(false);
         }
 
-        if((!mDnsServer.getEditText().getText().toString().isEmpty()) &&
+        if ((!mDnsServer.getEditText().getText().toString().isEmpty()) &&
                 (!EdgeCmd.checkIPV4(mDnsServer.getEditText().getText().toString()))) {
             mDnsServer.setError(mDnsServer.getHint() + " format is incorrect");
             mDnsServer.getEditText().requestFocus();

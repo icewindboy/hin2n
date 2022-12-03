@@ -1,5 +1,6 @@
 package wang.switchy.hin2n.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,7 +8,9 @@ import android.content.res.Configuration;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
-
+import android.os.Handler;
+import android.os.Message;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -25,12 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.orhanobut.logger.Logger;
-//import com.tencent.bugly.beta.Beta;
 import com.permissionx.guolindev.PermissionX;
-import com.permissionx.guolindev.callback.RequestCallback;
-//import com.yanzhenjie.permission.Action;
-//import com.yanzhenjie.permission.AndPermission;
-//import com.yanzhenjie.permission.runtime.Permission;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,9 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wang.switchy.hin2n.Hin2nApplication;
-//import wang.switchy.hin2n.Manifest;
-import android.Manifest;
-
 import wang.switchy.hin2n.R;
 import wang.switchy.hin2n.adapter.TermAdapter;
 import wang.switchy.hin2n.event.ConnectingEvent;
@@ -54,6 +49,7 @@ import wang.switchy.hin2n.event.SupernodeDisconnectEvent;
 import wang.switchy.hin2n.model.EdgeStatus;
 import wang.switchy.hin2n.model.N2NSettingInfo;
 import wang.switchy.hin2n.service.N2NService;
+import wang.switchy.hin2n.storage.db.base.Hin2nSettings;
 import wang.switchy.hin2n.storage.db.base.model.N2NSettingModel;
 import wang.switchy.hin2n.template.BaseTemplate;
 import wang.switchy.hin2n.template.CommonTitleTemplate;
@@ -63,7 +59,7 @@ import wang.switchy.hin2n.tool.ShareUtils;
 import wang.switchy.hin2n.tool.ThreadUtils;
 
 public class MainActivity extends BaseActivity {
-
+    private Hin2nSettings settings = Hin2nSettings.getInstance();
     private N2NSettingModel mCurrentSettingInfo;
     private RelativeLayout mCurrentSettingItem;
     private TextView mCurrentSettingName;
@@ -75,8 +71,11 @@ public class MainActivity extends BaseActivity {
     private LinearLayout mLeftMenu;
     private String logTxtPath;
     private CheckBox mStartAtBoot;
+    private CheckBox mUseProxy;
     private RecyclerView mRecyclerView;
     private TermAdapter mTermAdapter;
+    private Handler mHandler;
+
     List<String> term = new ArrayList<>();
 
     private static final int REQUECT_CODE_SDCARD = 1;
@@ -88,26 +87,20 @@ public class MainActivity extends BaseActivity {
         CommonTitleTemplate titleTemplate = new CommonTitleTemplate(this, getString(R.string.app_name));
         titleTemplate.mRightImg.setImageResource(R.mipmap.ic_add);
         titleTemplate.mRightImg.setVisibility(View.VISIBLE);
-        titleTemplate.mRightImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SettingDetailsActivity.class);
-                intent.putExtra("type", SettingDetailsActivity.TYPE_SETTING_ADD);
-                startActivity(intent);
-            }
+        titleTemplate.mRightImg.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SettingDetailsActivity.class);
+            intent.putExtra("type", SettingDetailsActivity.TYPE_SETTING_ADD);
+            startActivity(intent);
         });
 
         titleTemplate.mLeftImg.setImageResource(R.mipmap.ic_menu);
         titleTemplate.mLeftImg.setVisibility(View.VISIBLE);
         titleTemplate.mLeftImg.setVisibility(View.VISIBLE);
-        titleTemplate.mLeftImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mDrawerLayout.isDrawerOpen(mLeftMenu)) {
-                    mDrawerLayout.closeDrawer(mLeftMenu);
-                } else {
-                    mDrawerLayout.openDrawer(mLeftMenu);
-                }
+        titleTemplate.mLeftImg.setOnClickListener(view -> {
+            if (mDrawerLayout.isDrawerOpen(mLeftMenu)) {
+                mDrawerLayout.closeDrawer(mLeftMenu);
+            } else {
+                mDrawerLayout.openDrawer(mLeftMenu);
             }
         });
 
@@ -120,7 +113,7 @@ public class MainActivity extends BaseActivity {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, null, R.string.open, R.string.close) {
             //菜单打开
@@ -139,12 +132,12 @@ public class MainActivity extends BaseActivity {
 
         mDrawerLayout.setDrawerListener(mActionBarDrawerToggle);
 
-        mLeftMenu = (LinearLayout) findViewById(R.id.ll_menu_left);
+        mLeftMenu = findViewById(R.id.ll_menu_left);
 
-        mConnectBtn = (ImageView) findViewById(R.id.iv_connect_btn);
+        mConnectBtn = findViewById(R.id.iv_connect_btn);
 //        mLogAction = (TextView) findViewById(R.id.tv_log_action);
 //        mScrollLogAction = (NestedScrollView) findViewById(R.id.scroll_log_action);
-        mRecyclerView = (RecyclerView) findViewById(R.id.scroll_log_action);
+        mRecyclerView = findViewById(R.id.scroll_log_action);
 
         if (N2NService.INSTANCE == null) {
             mConnectBtn.setImageResource(R.mipmap.ic_state_disconnect);
@@ -183,13 +176,15 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        mCurrentSettingItem = (RelativeLayout) findViewById(R.id.rl_current_setting_item);
+        mCurrentSettingItem = findViewById(R.id.rl_current_setting_item);
         mCurrentSettingItem.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ListActivity.class)));
 
-        mCurrentSettingName = (TextView) findViewById(R.id.tv_current_setting_name);
+        mCurrentSettingName = findViewById(R.id.tv_current_setting_name);
         mCurrentSettingName.setText(R.string.no_setting);
 
-        mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
+        mStartAtBoot = findViewById(R.id.check_box_start_at_boot);
+        mUseProxy = findViewById(R.id.check_box_use_proxy);
+
         SharedPreferences n2nSp = getSharedPreferences("Hin2n", Context.MODE_PRIVATE);
         if (n2nSp.getBoolean("start_at_boot", false))
             mStartAtBoot.setChecked(true);
@@ -205,19 +200,48 @@ public class MainActivity extends BaseActivity {
             SharedPreferences n2nSp1 = getSharedPreferences("Hin2n", MODE_PRIVATE);
             n2nSp1.edit().putBoolean("start_at_boot", mStartAtBoot.isChecked()).apply();
         });
+
+        mUseProxy.setChecked(settings.getProxyStatus());
+        mUseProxy.setOnClickListener(v -> {
+            settings.toggleProxy();
+        });
+
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mTermAdapter = new TermAdapter(null);
         mRecyclerView.setAdapter(mTermAdapter);
         mTermAdapter.setNewInstance(term);
         initLeftMenu();
+
+        mHandler = new Handler(msg -> {
+            switch (msg.what) {
+                case 1:
+                    boolean status = (boolean) msg.obj;
+                    mUseProxy.setChecked(status);
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        });
+
+        settings.setMainHandler(mHandler);
+        PermissionX.init(MainActivity.this).permissions(Manifest.permission.WRITE_SECURE_SETTINGS)
+                .request((allGranted, grantedList, deniedList) -> {
+                    if (allGranted) {
+                        settings.setHasProxySetPermission(true);
+                    } else {
+                        settings.setHasProxySetPermission(false);
+                    }
+                });
     }
 
     private void initLeftMenu() {
-        TextView appVersion = (TextView) findViewById(R.id.tv_app_version);
+        TextView appVersion = findViewById(R.id.tv_app_version);
         appVersion.setText(N2nTools.getVersionName(this));
 
-        RelativeLayout shareItem = (RelativeLayout) findViewById(R.id.rl_share);
+        RelativeLayout shareItem = findViewById(R.id.rl_share);
         shareItem.setOnClickListener(view -> {
             Logger.d("shareItem onClick~");
 
@@ -247,22 +271,22 @@ public class MainActivity extends BaseActivity {
         });
         shareItem.setVisibility(View.GONE);     // @TODO 暂时不显示
 
-        RelativeLayout contactItem = (RelativeLayout) findViewById(R.id.rl_contact);
+        RelativeLayout contactItem = findViewById(R.id.rl_contact);
         contactItem.setOnClickListener(view -> ShareUtils.joinQQGroup(MainActivity.this));
 
-        RelativeLayout feedbackItem = (RelativeLayout) findViewById(R.id.rl_feedback);
+        RelativeLayout feedbackItem = findViewById(R.id.rl_feedback);
         feedbackItem.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
             intent.putExtra(WebViewActivity.WEB_VIEW_TYPE, WebViewActivity.TYPE_WEB_VIEW_FEEDBACK);
             startActivity(intent);
         });
 
-        RelativeLayout checkUpdateItem = (RelativeLayout) findViewById(R.id.rl_check_update);
+        RelativeLayout checkUpdateItem = findViewById(R.id.rl_check_update);
         checkUpdateItem.setOnClickListener(view -> {
 //                Beta.checkUpgrade();
         });
 
-        RelativeLayout aboutItem = (RelativeLayout) findViewById(R.id.rl_about);
+        RelativeLayout aboutItem = findViewById(R.id.rl_about);
         aboutItem.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
@@ -294,7 +318,7 @@ public class MainActivity extends BaseActivity {
 
             startService(intent);
         } else if (requestCode == REQUEST_CODE_VPN_FOR_START_AT_BOOT) {
-            mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
+            mStartAtBoot = findViewById(R.id.check_box_start_at_boot);
             if (mStartAtBoot.isChecked()) {
                 if (resultCode == RESULT_OK) {
                     SharedPreferences n2nSp = getSharedPreferences("Hin2n", MODE_PRIVATE);
@@ -317,14 +341,14 @@ public class MainActivity extends BaseActivity {
 
         Long currentSettingId = n2nSp.getLong("current_setting_id", -1);
         if (currentSettingId != -1) {
-            mCurrentSettingInfo = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load((long) currentSettingId);
+            mCurrentSettingInfo = Hin2nApplication.getInstance().getDaoSession().getN2NSettingModelDao().load(currentSettingId);
             if (mCurrentSettingInfo != null) {
                 mCurrentSettingName.setText(mCurrentSettingInfo.getName());
-                mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
+                mStartAtBoot = findViewById(R.id.check_box_start_at_boot);
                 mStartAtBoot.setClickable(true);
             } else {
                 mCurrentSettingName.setText(R.string.no_setting);
-                mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
+                mStartAtBoot = findViewById(R.id.check_box_start_at_boot);
                 mStartAtBoot.setClickable(false);
                 mStartAtBoot.setChecked(false);
             }
@@ -343,7 +367,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         } else {
-            mStartAtBoot = (CheckBox) findViewById(R.id.check_box_start_at_boot);
+            mStartAtBoot = findViewById(R.id.check_box_start_at_boot);
             mStartAtBoot.setClickable(false);
             mStartAtBoot.setChecked(false);
         }

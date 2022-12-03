@@ -76,6 +76,8 @@
                     android:layout_centerHorizontal="true"
                     android:text="Start service at boot" />
 
+
+
             </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView

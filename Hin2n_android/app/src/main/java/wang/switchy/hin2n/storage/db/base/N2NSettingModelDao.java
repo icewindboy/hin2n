@@ -51,6 +51,7 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
         public final static Property DnsServer = new Property(24, String.class, "dnsServer", false, "DNS_SERVER");
         public final static Property EncryptionMode = new Property(25, String.class, "encryptionMode", false, "ENCRYPTION_MODE");
         public final static Property HeaderEnc = new Property(26, boolean.class, "headerEnc", false, "HEADER_ENC");
+        public final static Property Proxy = new Property(27, String.class, "proxy", false, "PROXY");
     }
 
 
@@ -92,7 +93,8 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
                 "\"GATEWAY_IP\" TEXT," + // 23: gatewayIp
                 "\"DNS_SERVER\" TEXT," + // 24: dnsServer
                 "\"ENCRYPTION_MODE\" TEXT," + // 25: encryptionMode
-                "\"HEADER_ENC\" INTEGER NOT NULL );"); // 26: headerEnc
+                "\"HEADER_ENC\" INTEGER NOT NULL ," + // 26: headerEnc
+                "\"PROXY\" TEXT);"); // 27: proxy
     }
 
     /** Drops the underlying database table. */
@@ -187,6 +189,11 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
             stmt.bindString(26, encryptionMode);
         }
         stmt.bindLong(27, entity.getHeaderEnc() ? 1L: 0L);
+ 
+        String proxy = entity.getProxy();
+        if (proxy != null) {
+            stmt.bindString(28, proxy);
+        }
     }
 
     @Override
@@ -275,6 +282,11 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
             stmt.bindString(26, encryptionMode);
         }
         stmt.bindLong(27, entity.getHeaderEnc() ? 1L: 0L);
+ 
+        String proxy = entity.getProxy();
+        if (proxy != null) {
+            stmt.bindString(28, proxy);
+        }
     }
 
     @Override
@@ -311,7 +323,8 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
             cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // gatewayIp
             cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24), // dnsServer
             cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25), // encryptionMode
-            cursor.getShort(offset + 26) != 0 // headerEnc
+            cursor.getShort(offset + 26) != 0, // headerEnc
+            cursor.isNull(offset + 27) ? null : cursor.getString(offset + 27) // proxy
         );
         return entity;
     }
@@ -345,6 +358,7 @@ public class N2NSettingModelDao extends AbstractDao<N2NSettingModel, Long> {
         entity.setDnsServer(cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24));
         entity.setEncryptionMode(cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25));
         entity.setHeaderEnc(cursor.getShort(offset + 26) != 0);
+        entity.setProxy(cursor.isNull(offset + 27) ? null : cursor.getString(offset + 27));
      }
     
     @Override

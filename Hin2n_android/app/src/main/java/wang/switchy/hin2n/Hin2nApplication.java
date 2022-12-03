@@ -12,12 +12,9 @@ import androidx.multidex.MultiDexApplication;
 
 import wang.switchy.hin2n.storage.db.base.DaoMaster;
 import wang.switchy.hin2n.storage.db.base.DaoSession;
-import wang.switchy.hin2n.tool.N2nTools;
+//import wang.switchy.hin2n.tool.N2nTools;
 
-//import com.tencent.bugly.Bugly;
-//import com.umeng.analytics.MobclickAgent;
-//import com.umeng.commonsdk.UMConfigure;
-import com.umeng.socialize.PlatformConfig;
+//import com.umeng.socialize.PlatformConfig;
 
 
 /**
@@ -43,6 +40,8 @@ public class Hin2nApplication extends MultiDexApplication {
         System.loadLibrary("edge_v2");
         System.loadLibrary("edge_v1");
         System.loadLibrary("edge_jni");
+        // tun2http
+//        System.loadLibrary("tun2http");
     }
 
     //静态单例
@@ -70,7 +69,7 @@ public class Hin2nApplication extends MultiDexApplication {
     }
 
     private void initShare() {
-        PlatformConfig.setWeixin(N2nTools.getMetaData(this, N2nTools.MetaShareWxAppId), N2nTools.getMetaData(this, N2nTools.MetaShareWxAppSecret));
+//        PlatformConfig.setWeixin(N2nTools.getMetaData(this, N2nTools.MetaShareWxAppId), N2nTools.getMetaData(this, N2nTools.MetaShareWxAppSecret));
     }
 
     public static Hin2nApplication getInstance() {

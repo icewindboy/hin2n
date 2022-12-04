@@ -1,9 +1,14 @@
 package wang.switchy.hin2n.service;
 
+import android.content.Intent;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+
 import androidx.annotation.RequiresApi;
+
+import wang.switchy.hin2n.Hin2nApplication;
+import wang.switchy.hin2n.activity.MainActivity;
 import wang.switchy.hin2n.storage.db.base.Hin2nSettings;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -38,8 +43,11 @@ public class ProxyTileService extends TileService {
     private void updateTile() {
         int state = settings.getProxyStatus() ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
         getQsTile().setState(state);
+        String label = settings.getProxy();
 
+        getQsTile().setLabel(state == 1 ? "no proxy" : label);
         // 刷新显示
         getQsTile().updateTile();
     }
 }
+

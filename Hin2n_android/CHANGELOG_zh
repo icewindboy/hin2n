@@ -33,3 +33,20 @@
 
 2018-04-20 Hin2n_v0.1.0
 * 首次发布基础功能测试版
+
+2022-12-4
+* 增加路由配置
+  0.0.0.0/0 所有流量走VPN
+  192.168.1.0/24 指定网段的流量才走VPN
+
+* 增加http proxy代理设置
+http proxy代理需要 用adb shell 获取 security settings 权限
+adb 安装：
+ adb install -t -r -g app-normal-allarch-release.apk
+如果不行还可以运行
+ adb shell pm grant wang.switchy.hin2n android.permission.WRITE_SECURE_SETTINGS
+
+分配权限后要退出程序再测试。
+
+
+

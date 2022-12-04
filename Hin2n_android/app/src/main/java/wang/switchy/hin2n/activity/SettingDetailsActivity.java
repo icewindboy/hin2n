@@ -102,6 +102,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
     private Spinner mEncryptionMode;
     private CheckBox mHeaderEncCheckBox;
     private TextInputLayout mProxy;
+    private TextInputLayout mRoutes;
 
     @Override
     protected BaseTemplate createTemplate() {
@@ -196,6 +197,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
         mEncryptionMode = findViewById(R.id.til_encryption_mode);
         mHeaderEncCheckBox = findViewById(R.id.header_enc_check_box);
         mProxy = findViewById(R.id.proxy);
+        mRoutes = findViewById(R.id.routes);
 
         ArrayAdapter<CharSequence> encAdapter = ArrayAdapter.createFromResource(this, R.array.encryption_modes,
                 android.R.layout.simple_spinner_item);
@@ -321,6 +323,7 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
             mTraceLevelSpinner.setSelection(Integer.valueOf(mN2NSettingModel.getTraceLevel()));
             mMoreSettingCheckBox.setChecked(false);
             mProxy.getEditText().setText(String.valueOf(mN2NSettingModel.getProxy()));
+            mRoutes.getEditText().setText(String.valueOf(mN2NSettingModel.getRoutes()));
             mButtons.setVisibility(View.VISIBLE);
             mSaveBtn.setVisibility(View.GONE);
         }
@@ -476,7 +479,8 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
                         mHeaderEncCheckBox.isChecked(),
-                        mProxy.getEditText().getText().toString());
+                        mProxy.getEditText().getText().toString(),
+                        mRoutes.getEditText().getText().toString());
                 n2NSettingModelDao.insert(mN2NSettingModel);
 
                 if (!hasSelected) {
@@ -530,7 +534,8 @@ public class SettingDetailsActivity extends BaseActivity implements View.OnClick
                         mDnsServer.getEditText().getText().toString(),
                         mEncryptionMode.getSelectedItem().toString(),
                         mHeaderEncCheckBox.isChecked(),
-                        mProxy.getEditText().getText().toString());
+                        mProxy.getEditText().getText().toString(),
+                        mRoutes.getEditText().getText().toString());
                 n2NSettingModelDao1.update(mN2NSettingModel);
 
                 if (N2NService.INSTANCE != null &&

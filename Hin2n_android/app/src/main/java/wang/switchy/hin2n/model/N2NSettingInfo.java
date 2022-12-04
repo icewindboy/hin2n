@@ -41,6 +41,7 @@ public class N2NSettingInfo implements Parcelable {
     String encryptionMode;
     boolean headerEnc;
     String proxy;
+    String routes;
 
     public N2NSettingInfo(N2NSettingModel n2NSettingModel) {
         this.id = n2NSettingModel.getId();
@@ -69,7 +70,7 @@ public class N2NSettingInfo implements Parcelable {
         this.dnsServer = n2NSettingModel.getDnsServer();
         this.encryptionMode = n2NSettingModel.getEncryptionMode();
         this.headerEnc = n2NSettingModel.getHeaderEnc();
-
+        this.routes = n2NSettingModel.getRoutes();
     }
 
     protected N2NSettingInfo(Parcel in) {
@@ -99,6 +100,8 @@ public class N2NSettingInfo implements Parcelable {
         dnsServer = in.readString();
         encryptionMode = in.readString();
         headerEnc = in.readByte() != 0;
+        proxy = in.readString();
+        routes = in.readString();
     }
 
     public static final Creator<N2NSettingInfo> CREATOR = new Creator<N2NSettingInfo>() {
@@ -317,6 +320,14 @@ public class N2NSettingInfo implements Parcelable {
         this.proxy = proxy;
     }
 
+    public String getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(String routes) {
+        this.routes = routes;
+    }
+
     @Override
     public String toString() {
         return "N2NSettingInfo{" +
@@ -346,6 +357,8 @@ public class N2NSettingInfo implements Parcelable {
                 ", dnsServer=" + dnsServer +
                 ", encryptionMode=" + encryptionMode +
                 ", headerEnc=" + headerEnc +
+                ", proxy=" + proxy +
+                ", routes=" + routes +
                 '}';
     }
 
@@ -386,5 +399,9 @@ public class N2NSettingInfo implements Parcelable {
         parcel.writeString(dnsServer);
         parcel.writeString(encryptionMode);
         parcel.writeByte((byte) (headerEnc ? 2 : 0));
+        parcel.writeString(proxy);
+        parcel.writeString(routes);
     }
+
+
 }

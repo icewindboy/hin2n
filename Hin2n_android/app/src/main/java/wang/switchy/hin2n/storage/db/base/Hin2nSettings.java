@@ -26,16 +26,16 @@ public class Hin2nSettings {
         boolean status = !getProxyStatus();
         String proxy = status ? getProxy() : ":0";
 
-        if (isHasProxySetPermission()) {
+        if (isHasProxySetPermission() && getAppContext() != null) {
             Settings.Global.putString(getAppContext().getContentResolver(), Settings.Global.HTTP_PROXY, proxy);
+
+            SharedPreferences n2nSp = getSharedPreferences();
+            SharedPreferences.Editor editor = n2nSp.edit();
+            editor.putBoolean("current_proxy_state", status).apply();
         } else {
             Toast.makeText(getAppContext(), "No Proxy setting permission", Toast.LENGTH_SHORT).show();
         }
 
-        SharedPreferences n2nSp = getSharedPreferences();
-
-        SharedPreferences.Editor editor = n2nSp.edit();
-        editor.putBoolean("current_proxy_state", status).apply();
 
         if (mainHandler != null) {
             Message msg = Message.obtain();

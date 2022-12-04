@@ -93,7 +93,18 @@ public class N2NService extends VpnService {
              * See https://github.com/zerotier/ZeroTierOne/issues/178#issuecomment-204599227 */
 //            builder.addRoute("0.0.0.0", 1);
 //            builder.addRoute("128.0.0.0", 1);
-            builder.addRoute("192.168.1.0", 24);
+
+//            builder.addRoute("192.168.1.0", 24);
+        }
+        String routes = mN2nSettingInfo.getRoutes();
+        if (!routes.isEmpty()) {
+            if (routes.equals("0.0.0.0/0")) {
+                builder.addRoute("0.0.0.0", 1);
+                builder.addRoute("128.0.0.0", 1);
+            }
+
+            String[] arr = routes.split("/");
+            builder.addRoute(arr[0], Integer.parseInt(arr[1]));
         }
 
         if (!mN2nSettingInfo.getDnsServer().isEmpty()) {
@@ -155,33 +166,34 @@ public class N2NService extends VpnService {
             EventBus.getDefault().post(new ErrorEvent());
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String CHANNEL_ONE_ID = "wang.switchy.hin2n";
-            String CHANNEL_ONE_NAME = "Channel One";
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ONE_ID,
-                    CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.setShowBadge(true);
-            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(notificationChannel);
-
-            Intent i = new Intent(this, MainActivity.class);
-//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
-                    .setTicker("Nature")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                    .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                    .setContentTitle("hin2n")
-                    .setContentText("hin2n service is running")
-                    .setContentIntent(pendingIntent);
-            Notification notification = notificationBuilder.build();
-            notification.flags |= Notification.FLAG_NO_CLEAR;
-            startForeground(1, notification);
-        }
+// 取消任务栏通知
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            String CHANNEL_ONE_ID = "wang.switchy.hin2n";
+//            String CHANNEL_ONE_NAME = "Channel One";
+//            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ONE_ID,
+//                    CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.RED);
+//            notificationChannel.setShowBadge(true);
+//            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+//            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//            manager.createNotificationChannel(notificationChannel);
+//
+//            Intent i = new Intent(this, MainActivity.class);
+////            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+//            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
+//                    .setTicker("Nature")
+//                    .setSmallIcon(R.mipmap.ic_launcher)
+//                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+//                    .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
+//                    .setContentTitle("hin2n")
+//                    .setContentText("hin2n service is running")
+//                    .setContentIntent(pendingIntent);
+//            Notification notification = notificationBuilder.build();
+//            notification.flags |= Notification.FLAG_NO_CLEAR;
+//            startForeground(1, notification);
+//        }
 
         return super.onStartCommand(intent, flags, startId);
     }

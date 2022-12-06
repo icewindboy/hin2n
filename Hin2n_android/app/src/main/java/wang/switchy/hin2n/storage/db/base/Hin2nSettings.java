@@ -16,6 +16,7 @@ public class Hin2nSettings {
     private Handler mainHandler;
 
     private Hin2nSettings() {
+        mainHandler = null;
     }
 
     public static Hin2nSettings getInstance() {
@@ -79,6 +80,10 @@ public class Hin2nSettings {
 
     public void setHasProxySetPermission(boolean hasProxySetPermission) {
         this.hasProxySetPermission = hasProxySetPermission;
+    }
+
+    public Handler getMainHandler() {
+        return mainHandler;
     }
 
     public void setMainHandler(Handler mainHandler) {

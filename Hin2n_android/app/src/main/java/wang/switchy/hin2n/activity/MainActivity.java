@@ -9,8 +9,6 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -20,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -393,7 +390,8 @@ public class MainActivity extends BaseActivity {
             EventBus.getDefault().unregister(this);
         }
 
-        settings.setMainHandler(null);
+
+//        Log.d(TAG,"I'm destroyed");
     }
 
 

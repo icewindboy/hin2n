@@ -31,7 +31,15 @@ public class ProxyTileService extends TileService {
     @Override
     public void onClick() {
         super.onClick();
-        refresh();
+
+        if (settings.getMainHandler() == null) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityAndCollapse(intent);
+
+        } else {
+            refresh();
+        }
     }
 
     public void refresh() {
